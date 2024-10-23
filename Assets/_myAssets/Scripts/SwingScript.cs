@@ -10,8 +10,10 @@ public class SwingScript : MonoBehaviour
     [Header("Swing Variables")]
     [SerializeField] private Transform startSwingHand;
     [SerializeField] private Rigidbody rb;
-    [SerializeField] private float maxDistance;
     [SerializeField] private LayerMask swingableLayer;
+    [SerializeField] private LineRenderer webRenderer;
+    [SerializeField] private float maxDistance;
+    [SerializeField] private float pullingStrength = 500f;
 
     [Header("Prediction Point")]
     [SerializeField] private Transform predictionPoint;
@@ -19,9 +21,12 @@ public class SwingScript : MonoBehaviour
     [Header("Input Actions")]
     [SerializeField] private InputActionProperty swingAction;
 
+
     private Vector3 swingPoint;
     private SpringJoint joint;
     private bool bHasHit;
+    private bool bIsSwinging;
+    
     private void Update()
     {
         GetSwingPoint();
@@ -34,6 +39,9 @@ public class SwingScript : MonoBehaviour
         {
             ReleaseSwing();
         }
+
+        PullRope();
+        DrawWeb();
     }
 
     public void StartSwing()
@@ -50,17 +58,36 @@ public class SwingScript : MonoBehaviour
             joint.spring = 4.5f;
             joint.damper = 7;
             joint.massScale = 4.5f;
+
+            bIsSwinging = true;
         }
     }
+
+    public void PullRope()
+    {
+        if (bIsSwinging)
+        {
+            Vector3 direction =(swingPoint - startSwingHand.position).normalized;
+            rb.AddForce(direction * pullingStrength * Time.deltaTime);
+
+            float distance = Vector3.Distance(rb.position , swingPoint);
+            joint.maxDistance = distance;
+        }
+    }
+
     public void ReleaseSwing()
     {
+        bIsSwinging = false;
         Destroy(joint);
     }
 
     private void GetSwingPoint()
     {
         if (joint)
+        {
+            predictionPoint.gameObject.SetActive(false);
             return;
+        }
 
         RaycastHit hit;
 
@@ -75,6 +102,21 @@ public class SwingScript : MonoBehaviour
         else
         {
             predictionPoint.gameObject.SetActive(false);
+        }
+    }
+
+    public void DrawWeb()
+    {
+        if (!joint)
+        {
+            webRenderer.enabled = false;
+        }
+        else
+        {
+            webRenderer.enabled = true;
+            webRenderer.positionCount = 2;
+            webRenderer.SetPosition(0, startSwingHand.position);
+            webRenderer.SetPosition(1, swingPoint);
         }
     }
 }
