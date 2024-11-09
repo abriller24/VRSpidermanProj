@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,7 +16,6 @@ public class SwingScript : MonoBehaviour
 
     [Header("Input Actions")]
     [SerializeField] private InputActionProperty swingAction;
-
 
     private Vector3 swingPoint;
     private SpringJoint joint;
@@ -60,19 +55,21 @@ public class SwingScript : MonoBehaviour
             joint.massScale = 4.5f;
 
             bIsSwinging = true;
+
+            PullRope();
         }
     }
 
     public void PullRope()
     {
-        if (bIsSwinging)
-        {
-            Vector3 direction =(swingPoint - startSwingHand.position).normalized;
-            rb.AddForce(direction * pullingStrength * Time.deltaTime);
+        if (!joint)
+            return;
 
-            float distance = Vector3.Distance(rb.position , swingPoint);
-            joint.maxDistance = distance;
-        }
+        Vector3 direction = joint.connectedAnchor - transform.position;
+        rb.AddForce(direction.normalized * pullingStrength * Time.deltaTime, ForceMode.Impulse);
+
+        float distance = Vector3.Distance(rb.position , swingPoint);
+        joint.maxDistance = distance;     
     }
 
     public void ReleaseSwing()
