@@ -21,23 +21,8 @@ public class Bullet : MonoBehaviour
             }
             Destroy(gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if(collision.gameObject.CompareTag("Enemy"))
-        {
-            EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(damage);
-            }
-            Destroy(gameObject);
-        }
+        else if (other.gameObject.CompareTag("Player"))
+            return;
         else
         {
             Destroy(gameObject);

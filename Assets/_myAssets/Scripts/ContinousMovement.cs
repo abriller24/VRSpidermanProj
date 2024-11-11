@@ -10,6 +10,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class ContinousMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 1f;
+    [SerializeField] private float inAirMoveSpeed;
+    [SerializeField] private float groundSpeed;
     [SerializeField] private float turnSpeed = 60f;
     [SerializeField] private float jumpHeight = 1.5f;
     [SerializeField] private bool bOnlyMoveWhenGrounded = false;
@@ -82,7 +84,7 @@ public class ContinousMovement : MonoBehaviour
             rb.MovePosition(newPosition);
         }
     }
-
+    
     public bool CheckIfGrounded()
     {
         Vector3 start = bodyCollider.transform.TransformPoint(bodyCollider.center);

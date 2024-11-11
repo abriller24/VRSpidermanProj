@@ -18,6 +18,7 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private float timeBetweenAttacks;
     [SerializeField] private GameObject projectile;
+    [SerializeField] private Transform shotPOS;
     private Rigidbody rb;
     bool alreadyAttacked;
     [SerializeField] private float sightRange, attackRange;
@@ -44,6 +45,7 @@ public class EnemyAI : MonoBehaviour
     {
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
+
 
         if (!playerInSightRange && !playerInAttackRange) Patrolling();
         if (playerInSightRange && !playerInAttackRange) Chasing();
@@ -85,17 +87,18 @@ public class EnemyAI : MonoBehaviour
     private void Attacking()
     {
         agent.SetDestination(transform.position); 
-        transform.LookAt(player);
+        transform.LookAt(player.transform.position);
 
         if(!alreadyAttacked)
         {
-            rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+            Rigidbody rb = Instantiate(projectile, shotPOS.position, Quaternion.identity).GetComponent<Rigidbody>();
             rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
             rb.AddForce(transform.up * 8f, ForceMode.Impulse);
 
             alreadyAttacked = true;
             Invoke(nameof(ResetAttack), timeBetweenAttacks);
         }
+
     }
 
     private void ResetAttack()
@@ -114,7 +117,6 @@ public class EnemyAI : MonoBehaviour
 
         if (health <= 0) Invoke(nameof(DestroyEnemy), 0.5f);
     }
-
     private void DestroyEnemy()
     {
         Destroy(gameObject);
